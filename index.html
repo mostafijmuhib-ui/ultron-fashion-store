@@ -22,10 +22,16 @@
 <section class="section about" id="about"><div><div class="eyebrow">WHY ULTRON</div><h2 data-bn="স্টাইলের নতুন পরিচয়" data-en="A New Identity of Style">স্টাইলের নতুন পরিচয়</h2><p class="muted" data-bn="স্মার্ট লুক, সহজ অর্ডার, আর বাংলাদেশজুড়ে Cash on Delivery। আপনার পছন্দের পণ্য বেছে নিন—বাকি কাজ সহজ।" data-en="Sharp looks, simple ordering, and Cash on Delivery across Bangladesh. Choose your favourites and leave the rest to us.">স্মার্ট লুক, সহজ অর্ডার, আর বাংলাদেশজুড়ে Cash on Delivery। আপনার পছন্দের পণ্য বেছে নিন—বাকি কাজ সহজ।</p></div><div class="aboutbox"><strong>01 / EASY ORDER</strong><p class="muted" data-bn="কার্টে যোগ করুন, ঠিকানা দিন, অর্ডার কনফার্ম করুন।" data-en="Add to cart, enter your delivery details, and confirm your order.">কার্টে যোগ করুন, ঠিকানা দিন, অর্ডার কনফার্ম করুন।</p><strong>02 / COD</strong><p class="muted" data-bn="পণ্য হাতে পেয়ে টাকা পরিশোধ করুন।" data-en="Pay when your parcel arrives.">পণ্য হাতে পেয়ে টাকা পরিশোধ করুন।</p></div></section>
 <footer class="footer"><div><b style="color:white;letter-spacing:2px">ULTRON</b><div style="margin-top:8px">WEAR YOUR ATTITUDE.</div></div><div>© <span id="year"></span> ULTRON Fashion Store</div><div>Bangladesh • Cash on Delivery</div></footer>
 <div class="overlay" id="cartOverlay"><div class="modal"><div class="modalhead"><h2 data-bn="আপনার কার্ট" data-en="Your Cart">আপনার কার্ট</h2><button class="close" data-close="cartOverlay">✕</button></div><div id="cartItems"></div><div id="cartSummary"></div><button class="btn" id="checkoutBtn" style="width:100%;margin-top:12px" data-bn="Cash on Delivery অর্ডার করুন" data-en="Checkout with Cash on Delivery">Cash on Delivery অর্ডার করুন</button></div></div>
-<div class="overlay" id="checkoutOverlay"><div class="modal"><div class="modalhead"><h2 data-bn="ডেলিভারি তথ্য" data-en="Delivery Details">ডেলিভারি তথ্য</h2><button class="close" data-close="checkoutOverlay">✕</button></div><form class="adminform" id="checkoutForm"><label>নাম / Full name</label><input required name="name" autocomplete="name"><label>মোবাইল নম্বর / Phone</label><input required name="phone" inputmode="tel"><label>সম্পূর্ণ ঠিকানা / Full address</label><textarea required name="address"></textarea><div class="notice">Demo mode: এই অর্ডারটি শুধু এই ব্রাউজারের Local Storage-এ সেভ হবে। লাইভ অর্ডার নেওয়ার আগে Backend যুক্ত করতে হবে।</div><button class="btn">Confirm COD Order</button></form></div></div>
+<div class="overlay" id="checkoutOverlay"><div class="modal"><div class="modalhead"><h2 data-bn="ডেলিভারি তথ্য" data-en="Delivery Details">ডেলিভারি তথ্য</h2><button class="close" data-close="checkoutOverlay">✕</button></div><form class="adminform" id="checkoutForm"><label>নাম / Full name</label><input required name="name" autocomplete="name"><label>মোবাইল নম্বর / Phone</label><input required name="phone" inputmode="tel"><label>সম্পূর্ণ ঠিকানা / Full address</label><textarea required name="address"></textarea><div class="notice">Cash on Delivery: অর্ডার Supabase-এ পাঠানোর চেষ্টা করা হবে।</div><button class="btn">Confirm COD Order</button></form></div></div>
 <div class="overlay" id="adminOverlay"><div class="modal"><div class="modalhead"><h2>ULTRON Admin</h2><button class="close" data-close="adminOverlay">✕</button></div><div id="adminLogin"><p class="muted">Demo admin preview. Secure server-side authentication is not configured.</p><form class="adminform" id="loginForm"><label>Username</label><input name="username" value="ultronadmin" required><label>Password</label><input type="password" name="password" required placeholder="Demo password: ultron-demo"><button class="btn">Login</button></form><div class="notice">Demo only: username ultronadmin / password ultron-demo. Do not use these credentials on a public live store.</div></div><div id="adminDash" class="hidden"><div class="sectionhead"><h2>Dashboard</h2><button class="btn secondary" id="logoutBtn">Logout</button></div><p class="muted">Products and orders saved in this browser only.</p><div id="adminStats"></div><h3>Add Product</h3><form class="adminform" id="addProductForm"><input name="name" required placeholder="Product name"><input name="bn" required placeholder="বাংলা নাম"><select name="category"><option value="Clothing">Clothing</option><option value="Shoes">Shoes</option><option value="Watches">Watches</option><option value="Accessories">Accessories</option><option value="Bags">Bags</option></select><input name="price" type="number" min="1" required placeholder="Price in BDT"><input name="emoji" placeholder="Emoji icon e.g. 👕"><label>Product image (saved in this browser)</label><input name="image" type="file" accept="image/*"><button class="btn">Add Product</button></form><h3>Orders</h3><div id="adminOrders"></div><h3>Products</h3><div id="adminProducts"></div><button class="btn secondary" id="resetDemo" style="margin-top:14px">Reset demo data</button></div></div></div>
 <div class="toast" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPABASE_URL = "https://sjtimwiawjyeikwgvvxy.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_U4eanmhRPQYbaZVLHIoI4Q_oabql9tF";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+let supabaseProductsLoaded = false;
+
 const initialProducts=[
 {id:1,name:"Oversized Street Tee",bn:"ওভারসাইজড স্ট্রিট টি-শার্ট",category:"Clothing",price:850,old:1100,emoji:"👕",badge:"BESTSELLER"},
 {id:2,name:"Urban Hoodie",bn:"আরবান হুডি",category:"Clothing",price:1650,old:1950,emoji:"🧥",badge:"NEW"},
@@ -50,16 +56,52 @@ function open(id){$(id).style.display="flex"}function close(id){$(id).style.disp
 document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>close(b.dataset.close));
 $("cartBtn").onclick=()=>{renderCart();open("cartOverlay")};$("adminBtn").onclick=()=>open("adminOverlay");
 $("checkoutBtn").onclick=()=>{if(cart.length){close("cartOverlay");open("checkoutOverlay")}};
-$("checkoutForm").onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),items=cart.map(c=>{let p=products.find(p=>p.id===c.id);return {name:p?.name,qty:c.qty,price:p?.price}});let total=items.reduce((a,b)=>a+b.qty*b.price,0);orders.unshift({id:"UT"+Date.now().toString().slice(-7),name:f.get("name"),phone:f.get("phone"),address:f.get("address"),items,total,status:"Pending",date:new Date().toLocaleString()});cart=[];save();renderCart();e.target.reset();close("checkoutOverlay");toast("Demo order saved. Backend required for real orders.");};
+$("checkoutForm").onsubmit=async e=>{e.preventDefault();let f=new FormData(e.target),items=cart.map(c=>{let p=products.find(p=>p.id===c.id);return {name:p?.name,qty:c.qty,price:p?.price}});let total=items.reduce((a,b)=>a+b.qty*b.price,0);
+try {
+  const { error } = await supabaseClient.from("orders").insert([{
+    customer_name: String(f.get("name")||"").trim(),
+    phone: String(f.get("phone")||"").trim(),
+    address: String(f.get("address")||"").trim(),
+    items,
+    total,
+    payment_method: "COD",
+    status: "Pending"
+  }]);
+  if(error) throw error;
+  orders.unshift({id:"UT"+Date.now().toString().slice(-7),name:f.get("name"),phone:f.get("phone"),address:f.get("address"),items,total,status:"Pending",date:new Date().toLocaleString()});
+  cart=[];save();renderCart();e.target.reset();close("checkoutOverlay");
+  toast(lang==="bn"?"অর্ডার সফলভাবে পাঠানো হয়েছে":"Order submitted successfully");
+} catch(err) {
+  console.error("Supabase order insert failed:", err);
+  toast(lang==="bn"?"অর্ডার জমা হয়নি। Supabase policy ও connection পরীক্ষা করুন।":"Order was not submitted. Check Supabase connection and policies.");
+}};
+async function loadSupabaseProducts(){
+  try {
+    const { data, error } = await supabaseClient.from("products").select("*").eq("active", true).order("id", { ascending: true });
+    if(error) throw error;
+    if(Array.isArray(data) && data.length) {
+      products = data.map(p=>({
+        id:p.id,
+        name:p.name,
+        bn:p.name_bn || p.name,
+        category:p.category || "Clothing",
+        price:Number(p.price||0),
+        old:0,
+        emoji:"🛍️",
+        image:p.image_url||"",
+        badge:""
+      }));
+      supabaseProductsLoaded = true;
+      renderProducts();
+    } else if(Array.isArray(data) && data.length===0) {
+      // Keep sample products visible until the admin adds products to the database.
+      renderProducts();
+    }
+  } catch(err) {
+    console.warn("Supabase product load failed; showing local demo products:", err);
+    renderProducts();
+  }
+}
 $("search").oninput=renderProducts;$("sort").onchange=renderProducts;
 document.querySelectorAll(".cat").forEach(b=>b.onclick=()=>{document.querySelectorAll(".cat").forEach(x=>x.classList.remove("active"));b.classList.add("active");currentCat=b.dataset.cat;renderProducts()});
-$("langBtn").onclick=()=>{lang=lang==="bn"?"en":"bn";$("langBtn").textContent=lang==="bn"?"EN":"বাংলা";document.querySelectorAll("[data-bn][data-en]").forEach(el=>el.textContent=el.dataset[lang]);$("search").placeholder=lang==="bn"?"পণ্য খুঁজুন / Search products":"Search products / পণ্য খুঁজুন";renderProducts();renderCart()};
-$("loginForm").onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);if(f.get("username")==="ultronadmin"&&f.get("password")==="ultron-demo"){adminOn=true;$("adminLogin").classList.add("hidden");$("adminDash").classList.remove("hidden");renderAdmin()}else toast("Demo login failed")};
-$("logoutBtn").onclick=()=>{adminOn=false;$("adminDash").classList.add("hidden");$("adminLogin").classList.remove("hidden")};
-$("addProductForm").onsubmit=e=>{e.preventDefault();let f=new FormData(e.target),file=f.get("image");let add=image=>{products.unshift({id:Date.now(),name:f.get("name"),bn:f.get("bn"),category:f.get("category"),price:Number(f.get("price")),emoji:f.get("emoji")||"🛍️",image:image||"",badge:"NEW"});save();renderProducts();renderAdmin();e.target.reset();toast("Demo product added")};if(file&&file.size){let r=new FileReader();r.onload=()=>add(r.result);r.readAsDataURL(file)}else add("")};
-function renderAdmin(){$("adminStats").innerHTML=`<div class="aboutbox">Products: <b>${products.length}</b> &nbsp; Orders: <b>${orders.length}</b> &nbsp; Demo sales: <b>${money(orders.reduce((a,o)=>a+o.total,0))}</b></div>`;$("adminOrders").innerHTML=orders.length?orders.map(o=>`<div class="cartrow"><div><b>${o.id} — ${o.name}</b><small>${o.phone} • ${o.address}<br>${o.items.map(i=>i.name+" × "+i.qty).join(", ")}<br>${o.date}</small></div><div><b>${money(o.total)}</b><select onchange="setStatus('${o.id}',this.value)" style="display:block;background:#222;color:white;padding:5px;margin-top:8px"><option ${o.status==="Pending"?"selected":""}>Pending</option><option ${o.status==="Confirmed"?"selected":""}>Confirmed</option><option ${o.status==="Shipped"?"selected":""}>Shipped</option><option ${o.status==="Delivered"?"selected":""}>Delivered</option><option ${o.status==="Cancelled"?"selected":""}>Cancelled</option></select></div></div>`).join(""):'<p class="muted">No demo orders yet.</p>';$("adminProducts").innerHTML=products.map(p=>`<div class="cartrow"><div><b>${p.name}</b><small>${p.category} • ${money(p.price)}</small></div><button onclick="deleteProduct(${p.id})">Delete</button></div>`).join("")}
-function setStatus(id,status){let o=orders.find(o=>o.id===id);if(o)o.status=status;save();renderAdmin()}function deleteProduct(id){products=products.filter(p=>p.id!==id);save();renderProducts();renderAdmin()}
-$("resetDemo").onclick=()=>{if(confirm("Reset products, cart and orders to sample data?")){products=initialProducts;cart=[];orders=[];save();renderProducts();renderCart();renderAdmin()}}
-$("year").textContent=new Date().getFullYear();renderProducts();renderCart();
-</script>
-</body></html>
+$("langBtn").onclick=()=>{lang=lang==="bn"?"en":"bn";$("langBtn").textContent=lang==="bn"?"EN":"বাংলা";document.querySelectorAll("[data-bn]
